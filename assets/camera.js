@@ -1,0 +1,5 @@
+'use strict';
+const CAMERA={stream:null};
+async function startCamera(video){stopCamera();if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera is not supported in this browser. Use a modern browser over HTTPS.');CAMERA.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});video.srcObject=CAMERA.stream;await video.play();}
+function stopCamera(){if(CAMERA.stream){CAMERA.stream.getTracks().forEach(t=>t.stop());CAMERA.stream=null;}}
+async function captureCompressed(video,canvas,maxWidth=1600,quality=.8){const vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh)throw new Error('Camera frame is not ready.');const scale=Math.min(1,maxWidth/vw);canvas.width=Math.round(vw*scale);canvas.height=Math.round(vh*scale);const ctx=canvas.getContext('2d',{alpha:false});ctx.drawImage(video,0,0,canvas.width,canvas.height);const blob=await new Promise((res,rej)=>canvas.toBlob(b=>b?res(b):rej(new Error('Could not create image.')),'image/jpeg',quality));return blob;}
